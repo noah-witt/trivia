@@ -39,7 +39,7 @@ services:
     image: ghcr.io/noah-witt/trivia/ui:dev
     build:
       target: ui
-      context: .
+      context: ./ui/
     ports:
       - "127.0.0.1:9092:80"
     volumes:
