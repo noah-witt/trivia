@@ -14,26 +14,6 @@ services:
       - MONGODB_URL=mongodb://mongo/trivia?retryWrites=true&w=majority
     depends_on:
       - mongo
-  worker:
-    restart: always
-    image: ghcr.io/noah-witt/sfpd-log/api:dev
-    build:
-      target: api
-      context: .
-    entrypoint: pdm run watchfiles "celery --app sfpdlog.worker.celery worker --loglevel debug -Ofair" /code/
-    volumes:
-      - ./api/sfpdlog:/code/sfpdlog:ro
-      - ./celery:/celery
-    environment:
-      - MONGODB_URL=mongodb://mongo/sfpdlog?retryWrites=true&w=majority
-      - GEOCODIO_API_KEY=${GEOCODIO_API_KEY}
-      - JWT_SECRET=${JWT_SECRET}
-      - ADMIN_KEY=${ADMIN_KEY}
-    depends_on:
-      - mongo
-  worker-beat:
-    extends: worker
-    entrypoint: pdm run watchfiles "celery --app sfpdlog.worker.celery beat -s /celery/celerybeat-schedule --loglevel debug" /code/
   ui:
     restart: always
     image: ghcr.io/noah-witt/trivia/ui:dev
