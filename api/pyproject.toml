@@ -1,0 +1,18 @@
+[project]
+name = "api"
+version = "0.1.0"
+description = "Default template for PDM package"
+authors = [
+    {name = "Noah Witt", email = "noah@noah-witt.com"},
+]
+dependencies = [
+    "fastapi==0.109.2",
+    "gunicorn==21.2.0",
+]
+requires-python = "==3.11.*"
+readme = "README.md"
+license = {text = "PROPRIETARY"}
+
+
+[tool.pdm]
+package-type = "application"
