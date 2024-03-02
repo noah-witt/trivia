@@ -59,6 +59,9 @@ class ResponseInput(BaseModel):
 @app.put("/api/quiz/{key}/answer")
 async def put_responses(key: str, input: ResponseInput):
     quiz = await Quiz.find_one(Quiz.key == key)
+    questions = len(quiz.questions)
+    if len(input.responses) != questions:
+        return {"message": "Invalid number of responses"}
     response = ResponseDocument(
         quiz=quiz, responses=input.responses, email=input.email, name=input.name
     )
