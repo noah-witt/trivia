@@ -3,5 +3,14 @@
         "api"
     ],
     "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true
+    "python.testing.pytestEnabled": true,
+    "eslint.workingDirectories": [
+        "./ui"
+    ],
+    "eslint.options": {
+        "overrideConfigFile": "./ui/eslintrc.js"
+    },
+    "cSpell.words": [
+        "Leaderboard"
+    ],
 }
