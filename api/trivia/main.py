@@ -25,6 +25,7 @@ async def on_startup() -> None:
     """Initialize services on startup."""
     import trivia.auth.endpoints as auth_endpoints
     from trivia.documents import initialize_db
+
     await initialize_db()
 
 
@@ -40,13 +41,13 @@ async def put_quiz(
     LOG.debug(f"quiz: {quiz}")
     record = Quiz.from_input(quiz, current_user.email)
     await record.save()
-    return {"message": "Quiz created successfully"}
+    return {"message": "Quiz created successfully", "key": record.key}
 
 
 @app.get("/api/quiz/{key}")
 async def get_quiz(key: str):
-    record = await Quiz.find_one(Quiz.key == key)
-    return record.model_dump()
+    record = await Quiz.find_one(Quiz.key == key, fetch_links=False)
+    return record.model_dump(exclude=set(["responses", "id"]))
 
 
 class ResponseInput(BaseModel):
@@ -57,10 +58,27 @@ class ResponseInput(BaseModel):
 
 @app.put("/api/quiz/{key}/answer")
 async def put_responses(key: str, input: ResponseInput):
-    # answer is a list of integers
-    input = ResponseInput()
     quiz = await Quiz.find_one(Quiz.key == key)
     response = ResponseDocument(
         quiz=quiz, responses=input.responses, email=input.email, name=input.name
     )
     await response.save()
+    return input
+
+
+@app.get("/api/quiz/{key}/leaders")
+async def get_leaders(key: str, limit: int = 10):
+    quiz = await Quiz.find_one(Quiz.key == key, fetch_links=True)
+    responses = quiz.responses
+    responses = sorted(responses, key=lambda x: x.score, reverse=True)
+    responses = responses[:limit]
+    result = []
+    for response in responses:
+        result.append(
+            {
+                "name": response.name,
+                "email": response.email,
+                "score": response.score,
+            }
+        )
+    return result

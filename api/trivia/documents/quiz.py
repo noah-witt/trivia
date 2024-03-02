@@ -1,24 +1,25 @@
 import base64
+from typing import TYPE_CHECKING
 from pydantic import Field
 from uuid import uuid4
-from beanie import Document
+from beanie import BackLink, Document
 from pydantic import BaseModel
 from pymongo import IndexModel
+import secrets
+
+if TYPE_CHECKING:
+    from trivia.documents.response import ResponseDocument
 
 
-class Question(Document):
+class Question(BaseModel):
     question: str
     answers: list[str]
     correct: int
 
 
 def key_factory() -> str:
-    # 128bit random number
-    random = uuid4().int
-    # 16 bytes
-    random_bytes = random.to_bytes(16, "big")
-    random_b64_bytes = base64.urlsafe_b64encode(random_bytes)
-    return random_b64_bytes.decode("utf-8")
+    # 16 bytes of randomness
+    return secrets.token_urlsafe(16)
 
 
 class QuizInput(BaseModel):
@@ -29,6 +30,7 @@ class QuizInput(BaseModel):
 class Quiz(QuizInput, Document):
     key: str = Field(default_factory=key_factory)
     owner_email: str
+    responses: list[BackLink["ResponseDocument"]] = Field(original_field="quiz")
 
     class Settings:
         collection_name = "quizzes"
