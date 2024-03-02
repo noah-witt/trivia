@@ -6,7 +6,7 @@ RUN npm ci --legacy-peer-deps
 COPY ./ /code/
 RUN mkdir -p /code/node_modules 
 LABEL org.opencontainers.image.source https://github.com/noah-witt/trivia
-ENTRYPOINT [ "npx", "vite", "--port", "80", "--host", "0.0.0.0"]
+ENTRYPOINT [ "npx", "vue-cli-service", "serve", "--port", "80", "--host", "0.0.0.0"]
 
 FROM ui as ui-build
 RUN npm run build
