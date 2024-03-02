@@ -21,4 +21,12 @@ license = {text = "PROPRIETARY"}
 
 
 [tool.pdm]
-package-type = "application"
+distribution = false
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "pytest~=7.0.0",
+    "black~=24.2.0",
+    "mypy~=1.8.0",
+    "flake8~=7.0.0",
+]

@@ -89,7 +89,7 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-async def authenticate_user( username: str, password: str):
+async def authenticate_user(username: str, password: str):
     user = await UserInDB.find_one(UserInDB.username == username)
     if not user:
         return False
