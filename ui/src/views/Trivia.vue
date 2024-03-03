@@ -1,38 +1,48 @@
 <template>
-  <div class="Trivia" v-if="quiz != null">
-    <div>
-      <h1>{{ quiz.title }}</h1>
+  <Card class="Trivia" v-if="quiz != null">
+    <template #title>{{ quiz.title }}</template>
+    <template #content>
       <div v-if="currentQuestionData">
-        <h2>{{ currentQuestionData.question }}</h2>
+        <h2>{{ currentQuestionData.question }} <small>({{ currentQuestion+1 }}/{{quiz.questions.length}})</small></h2>
         <div
           v-for="(answer, index) in currentQuestionData.answers"
           :key="index"
         >
-          <input
-            type="radio"
+          <RadioButton
             :id="index + '-q'"
             :value="answer"
             v-model="currentQuestionResponse"
           />
           <label :for="index + '-q'">{{ answer }}</label>
         </div>
-        <button v-if="ableToBack" @click="back">Back</button>
-        <button v-if="ableToAdvance" @click="advance">Next</button>
+        <br/>
+        <Button :disabled="!ableToBack" @click="back">Back</Button> &nbsp;&nbsp;
+        <Button :disabled="!ableToAdvance" @click="advance">Next</Button>
+        <br/>
+        <br/>
         <div v-if="showSubmit">
-          <input v-model="name" placeholder="Name" />
-          <input v-model="email" placeholder="Email" />
-          <button :disabled="!ableToSubmit" @click="submitQuiz">Submit</button>
+          <InputText v-model="name" placeholder="Name" />
+          <InputText v-model="email" placeholder="Email" />
+          <br/>
+          <br/>
+          <Button :disabled="!ableToSubmit" @click="submitQuiz">Submit</Button>
         </div>
       </div>
-    </div>
-  </div>
-  <div v-else>
-    <p>Loading...</p>
-  </div>
+    </template>
+  </Card>
+  <Card v-else>
+    <template #content>
+      <p>Loading...</p>
+    </template>
+  </Card>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import Button from 'primevue/button'
+import RadioButton from 'primevue/radiobutton'
+import InputText from 'primevue/inputtext'
+import Card from 'primevue/card'
 
 interface Question {
   question: string;
@@ -56,7 +66,12 @@ export default defineComponent({
       email: ''
     }
   },
-  components: {},
+  components: {
+    Button,
+    RadioButton,
+    InputText,
+    Card
+  },
   mounted () {
     this.fetchQuiz()
   },
