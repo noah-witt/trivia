@@ -2,8 +2,9 @@
   <Card class="Trivia" v-if="quiz != null">
     <template #title>{{ quiz.title }}</template>
     <template #content>
+      <Steps :model="stepItems" v-model:activeStep="currentQuestion" @/>
       <div v-if="currentQuestionData">
-        <h2>{{ currentQuestionData.question }} <small>({{ currentQuestion+1 }}/{{quiz.questions.length}})</small></h2>
+        <h2>{{ currentQuestionData.question }}</h2>
         <div
           v-for="(answer, index) in currentQuestionData.answers"
           :key="index"
@@ -12,6 +13,7 @@
             :id="index + '-q'"
             :value="answer"
             v-model="currentQuestionResponse"
+            :inputId="index+'-q'"
           />
           <label :for="index + '-q'">{{ answer }}</label>
         </div>
@@ -43,6 +45,7 @@ import Button from 'primevue/button'
 import RadioButton from 'primevue/radiobutton'
 import InputText from 'primevue/inputtext'
 import Card from 'primevue/card'
+import Steps from 'primevue/steps'
 
 interface Question {
   question: string;
@@ -70,7 +73,8 @@ export default defineComponent({
     Button,
     RadioButton,
     InputText,
-    Card
+    Card,
+    Steps
   },
   mounted () {
     this.fetchQuiz()
@@ -110,6 +114,11 @@ export default defineComponent({
     }
   },
   computed: {
+    stepItems () {
+      return this.quiz?.questions.map((_, index) => ({
+        label: ((index + 1)).toString()
+      })) ?? []
+    },
     ableToAdvance () {
       const length = this.quiz?.questions.length
       if (length === undefined) {
