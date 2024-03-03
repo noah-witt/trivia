@@ -2,7 +2,7 @@
   <Card class="Trivia" v-if="quiz != null">
     <template #title>{{ quiz.title }}</template>
     <template #content>
-      <Steps :model="stepItems" v-model:activeStep="currentQuestion" @/>
+      <Steps :model="stepItems" v-model:activeStep="currentQuestion" />
       <div v-if="currentQuestionData">
         <h2>{{ currentQuestionData.question }}</h2>
         <div

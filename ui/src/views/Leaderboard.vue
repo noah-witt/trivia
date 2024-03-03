@@ -1,11 +1,13 @@
 <template>
   <div class="Trivia" v-if="leaderboard != null && quiz != null">
     <h1>{{ quiz.title }} Leaderboard</h1>
-    <ol>
-      <li v-for="(item, index) in leaderboard" :key="index">
-        {{ item.name }}: {{ item.score }}
-      </li>
-    </ol>
+    <DataTable :value="leaderboard" tableStyle="min-width: 50rem">
+      <Column field="name" header="Name"></Column>
+      <Column field="score" header="Score"></Column>
+    </DataTable>
+    <p>
+      Last updated: {{ lastUpdated }}.
+    </p>
   </div>
   <div v-else>
     <p>Loading...</p>
@@ -13,10 +15,13 @@
 </template>
 
 <script lang="ts">
+import { DateTime } from 'luxon'
 import { defineComponent } from 'vue'
-import luxon from 'luxon'
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
+import now from '../mixins/now'
 
-const REFRESH_INTERVAL = luxon.Duration.fromMillis(30 * 1000)
+const REFRESH_INTERVAL_MS = 30 * 1000
 
 interface Quiz {
   title: string;
@@ -30,12 +35,14 @@ type Leaderboard = LeaderboardItem[];
 
 export default defineComponent({
   name: 'LeaderboardQuiz',
+  mixins: [now],
   data () {
     return {
       leaderboard: null as null | Leaderboard,
       quiz: null as null | Quiz,
-      leaderboardLastRefresh: luxon.DateTime.fromMillis(0),
-      leaderboardRefreshInProgress: false
+      leaderboardLastRefresh: DateTime.fromMillis(0),
+      leaderboardRefreshInProgress: false,
+      $updateCheck: null as null | number
     }
   },
   methods: {
@@ -48,7 +55,7 @@ export default defineComponent({
         .then((response) => response.json())
         .then((data: Leaderboard) => {
           this.leaderboard = data
-          this.leaderboardLastRefresh = luxon.DateTime.now()
+          this.leaderboardLastRefresh = DateTime.now()
         })
         .finally(() => {
           this.leaderboardRefreshInProgress = false
@@ -65,12 +72,28 @@ export default defineComponent({
   },
   mounted () {
     this.loadData()
-    setInterval(() => {
-      const age = luxon.DateTime.now().diff(this.leaderboardLastRefresh)
-      if (age > REFRESH_INTERVAL) {
+    this.$updateCheck = setInterval(() => {
+      const age = DateTime.now().valueOf() - this.leaderboardLastRefresh.valueOf()
+      if (age > REFRESH_INTERVAL_MS) {
         this.updateLeaders()
       }
     }, 1000)
+  },
+  beforeUnmount () {
+    if (this.$updateCheck != null) {
+      clearInterval(this.$updateCheck)
+    }
+  },
+  components: {
+    DataTable,
+    Column
+  },
+  computed: {
+    lastUpdated () {
+      // eslint-disable-next-line no-unused-expressions
+      this.now // to trigger the mixin's update
+      return this.leaderboardLastRefresh.toRelative()
+    }
   }
 })
 </script>
