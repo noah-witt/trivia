@@ -11,7 +11,7 @@ ENTRYPOINT ["pdm", "run", "uvicorn", "trivia.main:app", "--reload", "--port", "8
 
 
 FROM api as prod
-ENTRYPOINT ["pdm", "run", "gunicorn", "--workers=2", "trivia.main:app", "--bind", "0.0.0.0:80"]
+ENTRYPOINT ["pdm", "run", "gunicorn", "--workers=2", "-k=uvicorn.workers.UvicornWorker", "trivia.main:app", "--bind", "0.0.0.0:80"]
 
 FROM api as ci
 COPY ./scripts/ /scripts
