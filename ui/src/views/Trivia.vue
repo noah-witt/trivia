@@ -114,37 +114,40 @@ export default defineComponent({
     }
   },
   computed: {
-    stepItems () {
+    stepItems (): { label: string }[] {
       return this.quiz?.questions.map((_, index) => ({
         label: ((index + 1)).toString()
       })) ?? []
     },
-    ableToAdvance () {
+    ableToAdvance ():boolean {
       const length = this.quiz?.questions.length
       if (length === undefined) {
         return false
       }
       return this.currentQuestion < length - 1
     },
-    ableToBack () {
+    ableToBack (): boolean {
       return this.currentQuestion > 0
     },
-    showSubmit () {
+    showSubmit (): boolean {
       return (
         this.responses.length === this.quiz?.questions.length &&
         this.responses.every((response) => response !== undefined)
       )
     },
-    ableToSubmit () {
+    ableToSubmit (): boolean {
       return (
         this.responses.length === this.quiz?.questions.length &&
-        this.responses.every((response) => response !== undefined) &&
+        this.responses.every((response: number | undefined) => response !== undefined) &&
         this.name !== '' &&
         this.email !== '' &&
         this.email.includes('@')
       )
     },
-    currentQuestionData () {
+    currentQuestionData (): {
+    question: string;
+    answers: string[];
+    } | undefined {
       return this.quiz?.questions?.[this.currentQuestion]
     },
     currentQuestionResponse: {
