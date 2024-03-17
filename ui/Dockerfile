@@ -13,5 +13,5 @@ RUN npm run build
 
 FROM nginx:1 as prod
 COPY --from=ui-build /code/dist/ /www/site/
-COPY ../nginx.prod.conf /etc/nginx/nginx.conf
+COPY ./nginx.prod.conf /etc/nginx/nginx.conf
 LABEL org.opencontainers.image.source https://github.com/noah-witt/trivia

@@ -89,7 +89,7 @@ export default defineComponent({
     Column
   },
   computed: {
-    lastUpdated () {
+    lastUpdated (): string | null {
       // eslint-disable-next-line no-unused-expressions
       this.now // to trigger the mixin's update
       return this.leaderboardLastRefresh.toRelative()
