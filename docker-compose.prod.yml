@@ -11,25 +11,14 @@ services:
       - JWT_SECRET=${JWT_SECRET}
     depends_on:
       - mongo
-  ui:
+  nginx:
     restart: always
     image: ghcr.io/noah-witt/trivia/ui:latest
     build:
       target: prod
       context: ./ui/
-    volumes:
-      - ./ui/:/code:ro
-      - /code/node_modules
-  nginx:
-    restart: always
-    image: nginx:1
     ports:
       - "127.0.0.1:9020:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - api
-      - ui
   mongo:
     image: mongo:latest
     restart: always
