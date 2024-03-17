@@ -24,12 +24,12 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import(/* webpackChunkName: "trivia" */ '../views/Trivia.vue')
   },
   {
-    path: '/leaderboard/:quizId',
+    path: '/leaderboard/:quizId/:responseId?',
     name: 'leaderboard',
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "trivia" */ '../views/Leaderboard.vue')
+    component: () => import(/* webpackChunkName: "leaderboard" */ '../views/Leaderboard.vue')
   }
 ]
 
