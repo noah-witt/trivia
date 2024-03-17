@@ -1,7 +1,8 @@
 <template>
   <div class="Trivia" v-if="leaderboard != null && quiz != null">
     <h1>{{ quiz.title }} Leaderboard</h1>
-    <DataTable :value="leaderboard" tableStyle="min-width: 50rem">
+    <h2 v-if="greetingString">{{ greetingString }}</h2>
+    <DataTable :value="leaderboard" :tableStyle="{'width': '100%'}">
       <Column field="name" header="Name"></Column>
       <Column field="score" header="Score"></Column>
     </DataTable>
@@ -33,6 +34,13 @@ interface LeaderboardItem {
 }
 type Leaderboard = LeaderboardItem[];
 
+interface Score {
+  name: string;
+  score: number;
+  id: string;
+  questions: number;
+}
+
 export default defineComponent({
   name: 'LeaderboardQuiz',
   mixins: [now],
@@ -42,7 +50,8 @@ export default defineComponent({
       quiz: null as null | Quiz,
       leaderboardLastRefresh: DateTime.fromMillis(0),
       leaderboardRefreshInProgress: false,
-      $updateCheck: null as null | number
+      $updateCheck: null as null | number,
+      greetingString: undefined as string | undefined
     }
   },
   methods: {
@@ -67,6 +76,14 @@ export default defineComponent({
         .then((data: Quiz) => {
           this.quiz = data
         })
+      const responseId: string[] | string | undefined = this.$route.params.responseId
+      if (responseId) {
+        fetch(`/api/quiz/${responseId}/score`)
+          .then((response) => response.json())
+          .then((data: Score) => {
+            this.greetingString = `Congratulations, ${data.name}! Your score is ${data.score}/${data.questions}.`
+          })
+      }
       this.updateLeaders()
     }
   },

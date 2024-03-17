@@ -24,7 +24,7 @@
         <br/>
         <div v-if="showSubmit">
           <InputText v-model="name" placeholder="Name" />
-          <InputText v-model="email" placeholder="Email" />
+          <InputText v-model="email" placeholder="Email" v-show="EMAIL_ENABLED"/>
           <br/>
           <br/>
           <Button :disabled="!ableToSubmit" @click="submitQuiz">Submit</Button>
@@ -47,6 +47,8 @@ import InputText from 'primevue/inputtext'
 import Card from 'primevue/card'
 import Steps from 'primevue/steps'
 
+const EMAIL_ENABLED = process.env.VUE_APP_EMAIL_ENABLED === 'true'
+
 interface Question {
   question: string;
   answers: string[];
@@ -66,7 +68,8 @@ export default defineComponent({
       responses: [] as (number | undefined)[],
       currentQuestion: 0,
       name: '',
-      email: ''
+      email: '',
+      EMAIL_ENABLED: EMAIL_ENABLED
     }
   },
   components: {
@@ -95,11 +98,12 @@ export default defineComponent({
         },
         body: JSON.stringify({
           name: this.name,
-          email: this.email,
+          email: EMAIL_ENABLED ? this.email : undefined,
           responses: this.responses
         })
-      }).then(() => {
-        this.$router.push('/leaderboard/' + this.$route.params.quizId)
+      }).then(async (response) => {
+        const data: {id: string; score: number} = await response.json()
+        this.$router.push('/leaderboard/' + this.$route.params.quizId + '/' + data.id)
       })
     },
     advance () {
@@ -140,8 +144,8 @@ export default defineComponent({
         this.responses.length === this.quiz?.questions.length &&
         this.responses.every((response: number | undefined) => response !== undefined) &&
         this.name !== '' &&
-        this.email !== '' &&
-        this.email.includes('@')
+        (!EMAIL_ENABLED || (this.email !== '' &&
+        this.email.includes('@')))
       )
     },
     currentQuestionData (): {

@@ -9,6 +9,7 @@ services:
     environment:
       - MONGODB_URL=mongodb://mongo/trivia?retryWrites=true&w=majority
       - JWT_SECRET=${JWT_SECRET}
+      - TOKEN_SECRET=${TOKEN_SECRET}
     depends_on:
       - mongo
   nginx:

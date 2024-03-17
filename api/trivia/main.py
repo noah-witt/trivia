@@ -1,5 +1,6 @@
 import logging
 from typing import Annotated
+from bson import ObjectId
 from fastapi import Depends, FastAPI
 from pydantic import BaseModel
 
@@ -52,11 +53,18 @@ async def get_quiz(key: str):
 
 class ResponseInput(BaseModel):
     responses: list[int]
-    email: str
+    name: str
+    email: str | None = None
+
+
+class ResponseResult(BaseModel):
+    score: int
+    questions: int
+    id: str
     name: str
 
 
-@app.put("/api/quiz/{key}/answer")
+@app.put("/api/quiz/{key}/answer", response_model=ResponseResult)
 async def put_responses(key: str, input: ResponseInput):
     quiz = await Quiz.find_one(Quiz.key == key)
     questions = len(quiz.questions)
@@ -65,8 +73,29 @@ async def put_responses(key: str, input: ResponseInput):
     response = ResponseDocument(
         quiz=quiz, responses=input.responses, email=input.email, name=input.name
     )
-    await response.save()
-    return input
+    response = await response.save()
+    response_populated = await ResponseDocument.find_one(
+        ResponseDocument.id == response.id, fetch_links=True
+    )
+    return ResponseResult(
+        score=response_populated.get_score(),
+        id=str(response_populated.id),
+        name=response_populated.name,
+        questions=len(response_populated.quiz.questions),
+    ).model_dump()
+
+
+@app.get("/api/quiz/{id}/score", response_model=ResponseResult)
+async def get_response(id: str):
+    response = await ResponseDocument.find_one(
+        ResponseDocument.id == ObjectId(id), fetch_links=True
+    )
+    return ResponseResult(
+        score=response.get_score(),
+        id=str(response.id),
+        name=response.name,
+        questions=len(response.quiz.questions),
+    ).model_dump()
 
 
 @app.get("/api/quiz/{key}/leaders")
@@ -80,7 +109,6 @@ async def get_leaders(key: str, limit: int = 10):
         result.append(
             {
                 "name": response.name,
-                "email": response.email,
                 "score": response.score,
             }
         )
