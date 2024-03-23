@@ -1,13 +1,15 @@
 <template>
-  <Card class="Trivia" v-if="quiz != null">
+  <Card class="Trivia bodoni-moda" v-if="quiz != null">
     <template #title>{{ quiz.title }}</template>
     <template #content>
       <Steps :model="stepItems" v-model:activeStep="currentQuestion" />
       <div v-if="currentQuestionData">
         <h2>{{ currentQuestionData.question }}</h2>
+        <span class="selectorList">
         <div
           v-for="(answer, index) in currentQuestionData.answers"
           :key="index"
+          class="selectors flex align-items-center"
         >
           <RadioButton
             :id="index + '-q'"
@@ -17,6 +19,7 @@
           />
           <label :for="index + '-q'">{{ answer }}</label>
         </div>
+      </span>
         <br/>
         <Button :disabled="!ableToBack" @click="back">Back</Button> &nbsp;&nbsp;
         <Button :disabled="!ableToAdvance" @click="advance">Next</Button>
@@ -177,3 +180,27 @@ export default defineComponent({
   }
 })
 </script>
+<style>
+.bodoni-moda {
+  font-family: "Bodoni Moda", serif;
+  font-optical-sizing: auto;
+  /* font-weight: <weight>; */
+  font-style: normal;
+}
+
+.selectors {
+  margin-top: 2px;
+}
+
+/**
+align children to the left
+ */
+.selectorList {
+  margin-top: 10px;
+
+}
+
+.selectors > label {
+  margin-left: 10px;
+}
+</style>

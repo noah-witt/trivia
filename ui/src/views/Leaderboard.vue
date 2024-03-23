@@ -1,5 +1,5 @@
 <template>
-  <div class="Trivia" v-if="leaderboard != null && quiz != null">
+  <div class="Trivia bodoni-moda" v-if="leaderboard != null && quiz != null">
     <h1>{{ quiz.title }} Leaderboard</h1>
     <h2 v-if="greetingString">{{ greetingString }}</h2>
     <DataTable :value="leaderboard" :tableStyle="{'width': '100%'}">
@@ -114,3 +114,11 @@ export default defineComponent({
   }
 })
 </script>
+<style>
+.bodoni-moda {
+  font-family: "Bodoni Moda", serif;
+  font-optical-sizing: auto;
+  /* font-weight: <weight>; */
+  font-style: normal;
+}
+</style>
