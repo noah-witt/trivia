@@ -7,6 +7,8 @@
       <Column field="score" header="Score"></Column>
     </DataTable>
     <p>
+      <router-link :to="{ name: 'key', params: { quizId: $route.params.quizId } }">View the answers</router-link>
+      <br/>
       Last updated: {{ lastUpdated }}.
     </p>
   </div>
