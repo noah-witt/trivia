@@ -77,6 +77,8 @@ async def put_responses(key: str, input: ResponseInput):
     response_populated = await ResponseDocument.find_one(
         ResponseDocument.id == response.id, fetch_links=True
     )
+    response_populated.get_score()
+    await response_populated.save() # save with _score
     return ResponseResult(
         score=response_populated.get_score(),
         id=str(response_populated.id),

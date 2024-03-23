@@ -30,6 +30,14 @@ const routes: Array<RouteRecordRaw> = [
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () => import(/* webpackChunkName: "leaderboard" */ '../views/Leaderboard.vue')
+  },
+  {
+    path: '/key/:quizId/:responseId?',
+    name: 'key',
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () => import(/* webpackChunkName: "key" */ '../views/Key.vue')
   }
 ]
 
