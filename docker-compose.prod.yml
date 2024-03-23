@@ -25,6 +25,8 @@ services:
     restart: always
     volumes:
       - ./mongo:/data/db
+    ports:
+      - "127.0.0.1:9021:27017"
     environment:
       - MONGODB_INITDB_ROOT_USERNAME=root
       - MONGODB_INITDB_ROOT_PASSWORD=triviapass
