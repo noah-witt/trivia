@@ -20,3 +20,13 @@ jobs:
         run: docker-compose -f ./docker-compose.prod.yml build --pull
       - name: push
         run: docker-compose -f ./docker-compose.prod.yml push
+      - name: Build ARM64
+        # Build images for linux/arm64
+        env:
+          DOCKER_DEFAULT_PLATFORM: linux/arm64
+        run: docker-compose -f ./docker-compose.prod.yml build --pull
+      - name: Push ARM64
+        # Push the linux/arm64 images
+        env:
+          DOCKER_DEFAULT_PLATFORM: linux/arm64
+        run: docker-compose -f ./docker-compose.prod.yml push
