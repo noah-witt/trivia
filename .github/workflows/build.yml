@@ -1,32 +1,60 @@
+name: Publish runtime container
+
 on:
   push:
     branches:
       - main
+    paths:
+      - 'dockerfile'
+      - '.github/workflows/docker-publish.yml'
+      - 'package.json'
+      - 'nuxt.config.ts'
+      - 'server/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
 
 jobs:
-  build_job:
+  build-and-push:
     runs-on: ubuntu-latest
-    name: build
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
-      - name: Log in to the Container registry
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: build
-        run: docker-compose -f ./docker-compose.prod.yml build --pull
-      - name: push
-        run: docker-compose -f ./docker-compose.prod.yml push
-      - name: Build ARM64
-        # Build images for linux/arm64
-        env:
-          DOCKER_DEFAULT_PLATFORM: linux/arm64
-        run: docker-compose -f ./docker-compose.prod.yml build --pull
-      - name: Push ARM64
-        # Push the linux/arm64 images
-        env:
-          DOCKER_DEFAULT_PLATFORM: linux/arm64
-        run: docker-compose -f ./docker-compose.prod.yml push
+
+      - name: Prepare image name (lowercase)
+        run: |
+          # GITHUB_REPOSITORY is in the form "owner/RepoName"
+          OWNER="${GITHUB_REPOSITORY%%/*}"
+          REPO="${GITHUB_REPOSITORY#*/}"
+          REPO_LOWER=$(echo "$REPO" | tr '[:upper:]' '[:lower:]')
+          echo "IMAGE=ghcr.io/${OWNER}/${REPO_LOWER}" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./dockerfile
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:latest
+            ${{ env.IMAGE }}:${{ github.sha }}
+          platforms: |
+            linux/amd64
+            linux/arm64
